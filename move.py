@@ -1,7 +1,9 @@
 import time
 import serial
-import excel
 import sys
+
+import excel
+import dataset.nparser as dbparse
 
 #make fram of angle values as string to send it
 def MakeFrame ():
@@ -37,7 +39,6 @@ def StepMove (targetAngles):
 	
 	SendValues()
 
-			
 #
 def MoveToTarget (targetAngles,waitTime=0.001):
 	global lastframe
@@ -62,10 +63,26 @@ def MoveToTarget (targetAngles,waitTime=0.001):
 	
 
 def highCtrl (sheet=0):
-	data = excel.exlHandler(sheet=sheet)
+	data,waitTime,targetTime = excel.exlHandler(sheet=int(sheet))
 	for i in range (len(data)):
-		MoveToTarget(data[i][:-2],float(data[i][-1]))
-		time.sleep(float(data[i][-2]))
+		MoveToTarget(data[i][:-2],float(waitTime[i]))
+		time.sleep(targetTime[i])
+
+def highCtrlDB (data):
+	print(data)
+	global lastframe
+	global currentAngles
+	lastframe = False
+	for i in range (len(data)):
+		if ( i == (len(data)-1) ): 
+			lastframe=True
+		for j in range(11):
+			if (j<6):currentAngles[j] = -data[i][j]+90
+			else: currentAngles[j] = data[i][j]+90
+
+		#currentAngles = data[i]
+		SendValues()
+		time.sleep(0.05)
 	
 
 #init serial	
@@ -99,6 +116,14 @@ if __name__ == "__main__":
 					valuesInt[i]=int(inputValSplit[i])
 					print (valuesInt[i])
 				MoveToTarget(valuesInt)
+		
+		elif (option=='-db'):
+			x=dbparse.parse_motions('dataset\walking_01_mmm.xml')
+			highCtrlDB(dbparse.proccess(x[0][1]))
+			
+		
+		
+		
 		else :
 			print ('Use : python move.py [option] \n-e  [numOfSheet] :for read from excel files \n-d  to put value directly \nshould put like [10, 33, 22, 45, 24, 12, 33, 44, 13, 12, 10]')
 	else :
