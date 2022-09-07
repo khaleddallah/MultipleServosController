@@ -1,14 +1,5 @@
-Mutli Servo Control   
-=======================
-- control servos from excel files     
-
-
-Description       
-------------------------
-- 11 servo connect with PC throw arduino mega     
-- python script connect to ardunio throw serial    
-- python script read data from excel files    
-- you can input data manual     
+# Mutliple Servos Controller using Arduino, Python, and Excel       
+- python script connect to Arduino throw serial connection, read data from excel files and send it to the Arduino at selected frequency.     
 
 
 Usage     
